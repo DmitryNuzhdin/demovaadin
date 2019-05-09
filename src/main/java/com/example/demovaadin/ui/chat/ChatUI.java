@@ -1,4 +1,4 @@
-package com.example.demovaadin.ui;
+package com.example.demovaadin.ui.chat;
 
 import com.example.demovaadin.backend.Authorization;
 import com.example.demovaadin.backend.LoginService;
@@ -32,7 +32,7 @@ import java.util.Objects;
 
 @SpringComponent
 @UIScope
-@Route("")
+@Route("/chat")
 @Push(transport = Transport.LONG_POLLING)
 public class ChatUI extends VerticalLayout  {
     private static final String COOKIE_NAME ="chat_auth_token";
