@@ -1,4 +1,4 @@
-package com.example.demovaadin.backend;
+package com.example.demovaadin.service.message;
 
 import io.reactivex.Observable;
 

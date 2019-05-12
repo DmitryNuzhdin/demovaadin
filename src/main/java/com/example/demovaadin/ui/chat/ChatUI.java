@@ -1,42 +1,44 @@
 package com.example.demovaadin.ui.chat;
 
-import com.example.demovaadin.backend.Authorization;
-import com.example.demovaadin.backend.LoginService;
-import com.example.demovaadin.backend.Message;
-import com.example.demovaadin.backend.MessageService;
+import com.example.demovaadin.ui.common.UIWidget;
+import com.example.demovaadin.service.auth.Authentication;
+import com.example.demovaadin.service.auth.AuthenticationProvider;
+import com.example.demovaadin.service.auth.Role;
+import com.example.demovaadin.service.message.Message;
+import com.example.demovaadin.service.message.MessageService;
+import com.example.demovaadin.ui.auth.AuthenticationHolder;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.ClickEvent;
-import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.VaadinService;
-import com.vaadin.flow.shared.ui.Transport;
+import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Consumer;
 
-import javax.servlet.http.Cookie;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
+import java.util.Set;
 
 
 @SpringComponent
 @UIScope
-@Route("/chat")
-@Push(transport = Transport.LONG_POLLING)
-public class ChatUI extends VerticalLayout  {
-    private static final String COOKIE_NAME ="chat_auth_token";
-
+public class ChatUI extends VerticalLayout implements UIWidget {
+    //Injects
+    AuthenticationHolder authenticationHolder;
+    AuthenticationProvider authenticationProvider;
+    MessageService messageService;
+    //Disposables
+    private CompositeDisposable disposables = new CompositeDisposable();
+    private Set<Registration> registrations = new HashSet<>();
+    //UI components
     private VerticalLayout messages = new VerticalLayout();
     private VerticalLayout usersList = new VerticalLayout();
 
@@ -45,33 +47,34 @@ public class ChatUI extends VerticalLayout  {
     private Tabs tabs = new Tabs(chatTab, usersTab);
     private VerticalLayout tabsContent = new VerticalLayout();
 
-
-    //private HorizontalLayout messagesAndUsersLayout = new HorizontalLayout(usersList,messages);
-
-    private Button loginButton = new Button("Login", VaadinIcon.KEY.create());
-    private Button registerButton = new Button("Register", VaadinIcon.PLUS.create());
-    private TextField loginText = new TextField("login");
-    private TextField passwordText = new TextField("password");
-    private HorizontalLayout loginLayout = new HorizontalLayout(loginText, passwordText, loginButton, registerButton);
-
     private Label myLogin = new Label("");
     private TextField sendText = new TextField();
     private Button sendButton = new Button(VaadinIcon.ARROW_RIGHT.create());
     private HorizontalLayout sendLayout = new HorizontalLayout(myLogin, sendText,sendButton);
+    //UI Logic
+    private Consumer<List<Message>> REFRESH_MESSAGE_LIST = ml -> access(()->{
+        messages.removeAll();
+        ml.forEach(m->messages.add(new Label(m.getUser()+": "+m.getMessage())));
+    });
+    private Consumer<Authentication> SHOW_HIDE_SEND_LAYOUT = a -> access(() -> {
+        if (a.getRoles().contains(Role.ROLE_SEND_MESSAGE))
+            add(sendLayout);
+        else remove(sendLayout);
+    });
+    private Consumer<Set<String>> REFRESH_USERS_LIST = ss -> access(() -> {
+        usersList.removeAll();
+        ss.forEach(s->usersList.add(new Label(s)));
+    });
 
-    private CompositeDisposable disposables = new CompositeDisposable();
 
-    private LoginService loginService;
-    private MessageService messageService;
-
-    private Authorization authorization;
-
-    public ChatUI(LoginService loginService, MessageService messageService) {
-        this.loginService = loginService;
+    public ChatUI(AuthenticationHolder authenticationHolder, AuthenticationProvider authenticationProvider, MessageService messageService) {
+        this.authenticationHolder = authenticationHolder;
+        this.authenticationProvider = authenticationProvider;
         this.messageService = messageService;
     }
 
     private void configureLayout(){
+        removeAll();
         messages.setSizeFull();
         usersList.setSizeFull();
         tabsContent.setSizeFull();
@@ -90,113 +93,36 @@ public class ChatUI extends VerticalLayout  {
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        authorize();
-        createLogic();
         configureLayout();
+        createLogic();
         super.onAttach(attachEvent);
     }
 
-    private void authorize() {
-        Long token = null;
-
-        for (Cookie cookie:VaadinService.getCurrentRequest().getCookies()) {
-            if (Objects.equals(cookie.getName(), COOKIE_NAME)){
-                token=Long.decode(cookie.getValue());
-            }
-        }
-        authorization = loginService.connect(token);
-        VaadinService.getCurrentResponse().addCookie(new Cookie(COOKIE_NAME, String.valueOf(authorization.getToken())));
+    @Override
+    protected void onDetach(DetachEvent detachEvent) {
+        disposables.clear();
+        registrations.forEach(Registration::remove);
+        super.onDetach(detachEvent);
     }
 
     private void createLogic() {
-        disposables.addAll(
-            authorization.errorMessage().subscribe(access(onErrorMessage())),
-            authorization.user().subscribe(access(onUserName())),
-            loginService.usersList().subscribe(access(onUserList())),
-            messageService.messages().subscribe(access(onMessages()))
-        );
-        loginButton.addClickListener(loginButtonOnClick());
-        registerButton.addClickListener(registerButtonOnclick());
-        sendButton.addClickListener(sendButtonOnClick());
-        this.addDetachListener(detachEvent -> {
-            disposables.dispose();
-            loginService.disconnect(authorization);
-        });
-        tabs.addSelectedChangeListener(event -> {
-                if (event.getSource().getSelectedTab() == chatTab) {
-                    tabsContent.removeAll();
-                    tabsContent.add(messages);
-                } else if (event.getSource().getSelectedTab() == usersTab) {
-                    tabsContent.removeAll();
-                    tabsContent.add(usersList);
-                }
-            }
-        );
-
-
-    }
-
-    private ComponentEventListener<ClickEvent<Button>> sendButtonOnClick() {
-        return buttonClickEvent -> {
-            messageService.sendMessage(new Message(authorization.user().first("[null]").blockingGet(), sendText.getValue()));
-            sendText.setValue("");
-        };
-    }
-
-    private ComponentEventListener<ClickEvent<Button>> registerButtonOnclick() {
-        return buttonClickEvent -> {
-            loginService.register(authorization, loginText.getValue(), passwordText.getValue());
-        };
-    }
-
-
-    private ComponentEventListener<ClickEvent<Button>> loginButtonOnClick() {
-        return buttonClickEvent -> {
-            loginService.login(authorization, loginText.getValue(), passwordText.getValue());
-        };
-    }
-
-    private Consumer<List<Message>> onMessages() {
-        return list -> {
-            messages.removeAll();
-            list.forEach(m->messages.add(new Label(m.getUser()+": "+m.getMessage())));
-        };
-    }
-
-    private Consumer<String> onErrorMessage() {
-        return string -> {
-            new Notification(string,3000, Notification.Position.TOP_CENTER).open();
-        };
-    }
-
-    private Consumer<String> onUserName() {
-        return string -> {
-            if (!string.equals("")) {
-                myLogin.setText(string);
-                add(sendLayout);
-                remove(loginLayout);
-            } else {
-                remove(sendLayout);
-                add(loginLayout);
-            }
-        };
-    }
-
-    private Consumer<List<String>> onUserList() {
-        return strings -> {
-            usersList.removeAll();
-            strings.forEach(s -> usersList.add(new Label(s)));
-        };
-    }
-
-
-    private <T> Consumer<T> access(Consumer<T> consumer){
-        return t -> getUI().ifPresent(ui -> ui.access(() -> {
-            try {
-                consumer.accept(t);
-            } catch (Exception e) {
-                throw new RuntimeException();
+        disposables.add(messageService.messages().subscribe(REFRESH_MESSAGE_LIST));
+        disposables.add(authenticationHolder.getAuthentication().subscribe(SHOW_HIDE_SEND_LAYOUT));
+        //disposables.add(authenticationProvider.usersOnline().subscribe(REFRESH_USERS_LIST));
+        registrations.add(sendButton.addClickListener(buttonClickEvent -> {
+            String username = authenticationHolder.getAuthentication().blockingFirst().getUsername();
+            if (username!=null) {
+                messageService.sendMessage(new Message(username, sendText.getValue()));
+                sendText.setValue("");
             }
         }));
+        registrations.add(tabs.addSelectedChangeListener(selectedChangeEvent -> {
+            tabsContent.removeAll();
+            if (tabs.getSelectedTab() == chatTab)
+                tabsContent.add(messages);
+            else
+                tabsContent.add(usersList);
+        }));
     }
+
 }

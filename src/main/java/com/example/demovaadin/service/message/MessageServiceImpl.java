@@ -1,4 +1,4 @@
-package com.example.demovaadin.backend;
+package com.example.demovaadin.service.message;
 
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import io.reactivex.Observable;

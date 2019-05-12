@@ -1,12 +1,11 @@
-package com.example.demovaadin.authService;
+package com.example.demovaadin.service.auth;
 
 import java.util.*;
 
 public class Authentication {
     private String username;
     private String password;
-    private Set<String> roles;
-    private boolean isAuthorized;
+    private Set<Role> roles;
 
     public static AuthenticationBuilder builder(){
         return new AuthenticationBuilder();
@@ -17,30 +16,25 @@ public class Authentication {
     }
 
     public static Authentication emptyAuthentication(){
-        return new Authentication(null,null,Collections.emptySet(),false);
+        return new Authentication(null,null,Collections.emptySet());
     }
 
-    public Authentication(String username, String password, Collection<String> roles, boolean isAuthorized) {
+    public Authentication(String username, String password, Collection<Role> roles) {
         this.username = username;
         this.password = password;
         this.roles = Collections.unmodifiableSet(new HashSet<>(roles));
-        this.isAuthorized = isAuthorized;
     }
 
     public String getUsername() {
         return username;
     }
 
-    public String getPassword() {
+    protected String getPassword() {
         return password;
     }
 
-    public Set<String> getRoles() {
+    public Set<Role> getRoles() {
         return roles;
-    }
-
-    public boolean isAuthorized() {
-        return isAuthorized;
     }
 
     public boolean checkPassword(String password){
@@ -51,14 +45,12 @@ public class Authentication {
 class AuthenticationBuilder {
     private String username;
     private String password;
-    private Set<String> roles;
-    private boolean isAuthorized;
+    private Set<Role> roles;
 
     public AuthenticationBuilder(Authentication authentication) {
         username=authentication.getUsername();
         password=authentication.getPassword();
         roles = authentication.getRoles();
-        isAuthorized = authentication.isAuthorized();
     }
 
     public AuthenticationBuilder() {
@@ -75,17 +67,13 @@ class AuthenticationBuilder {
         return this;
     }
 
-    public AuthenticationBuilder roles(Set<String> roles) {
+    public AuthenticationBuilder roles(Set<Role> roles) {
         this.roles = roles;
         return this;
     }
 
-    public AuthenticationBuilder authorized(boolean authorized) {
-        isAuthorized = authorized;
-        return this;
-    }
 
     public Authentication build(){
-        return new Authentication(username,password,roles,isAuthorized);
+        return new Authentication(username,password,roles);
     }
 }

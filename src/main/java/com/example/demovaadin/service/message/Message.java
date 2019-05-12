@@ -1,4 +1,4 @@
-package com.example.demovaadin.backend;
+package com.example.demovaadin.service.message;
 
 public class Message {
     private String user;

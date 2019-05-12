@@ -1,7 +1,7 @@
 package com.example.demovaadin.ui.auth;
 
-import com.example.demovaadin.authService.Authentication;
-import com.example.demovaadin.authService.AuthenticationProvider;
+import com.example.demovaadin.service.auth.Authentication;
+import com.example.demovaadin.service.auth.AuthenticationProvider;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 import io.reactivex.Observable;
@@ -29,18 +29,14 @@ public class AuthenticationHolder implements DisposableBean{
         return currentAuth.map(a->a.getRoles().contains(role));
     }
 
-    public Observable<String> authenticate(String username, String password){
+    public void authenticate(String username, String password){
         subscription.clear();
         Observable<Authentication> ans = authenticationProvider.authenticate(username,password);
         subscription.add(ans.subscribe(currentAuth::onNext));
-        return ans
-            .take(1)
-            .filter(a-> !a.isAuthorized())
-            .map(authentication -> "Wrong login/password");
     }
 
     public void logOut(){
-        authenticationProvider.logOut(currentAuth.blockingFirst().getUsername());
+        //authenticationProvider.logOut(currentAuth.blockingFirst().getUsername());
     }
 
     @Override

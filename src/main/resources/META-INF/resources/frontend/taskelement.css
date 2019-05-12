@@ -1,0 +1,23 @@
+.taskElement {
+    border: 3px solid slategray;
+    border-radius: 8px;
+}
+
+.created{
+    background-color: paleturquoise;
+}
+
+.canceled{
+    background-color: lightgray;
+}
+
+.in_progress{
+    background-color: cornflowerblue;
+}
+
+.successful{
+    background-color: lightseagreen;
+}
+.failed{
+    background-color: indianred;
+}

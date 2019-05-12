@@ -1,56 +1,52 @@
 package com.example.demovaadin.ui.auth;
 
-import com.example.demovaadin.authService.Authentication;
+import com.example.demovaadin.service.auth.Authentication;
+import com.example.demovaadin.ui.common.UIWidget;
+import com.example.demovaadin.ui.common.UniversalDisposable;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.server.Command;
-import com.vaadin.flow.shared.Registration;
+import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Consumer;
-import org.springframework.stereotype.Component;
-
-import java.util.HashSet;
-import java.util.Set;
 
 
-@Component
+@SpringComponent
 @UIScope
-public class AuthWidget extends HorizontalLayout {
+public class AuthWidget extends VerticalLayout implements UIWidget {
     //Injects
     private AuthenticationHolder authenticationHolder;
     //Disposable for unsubscribe
-    private CompositeDisposable disposables = new CompositeDisposable();
-    private Set<Registration> registrations = new HashSet<>();
+    private UniversalDisposable disposable = new UniversalDisposable();
     //UI components
-    private Label loggedInAs = new Label("You are logged in as:");
-    private Label currentUsername = new Label(null);
-    private TextField username = new TextField("username");
-    private TextField password = new TextField("password");
-    private Button logIn = new Button("logIn", VaadinIcon.KEY.create());
-    private Button logOut = new Button("logOut", VaadinIcon.ARROW_RIGHT.create());
+
+    private Label currentUsername = new Label("");
+    private TextField usernameField = new TextField("username:");
+    private TextField passwordField = new TextField("password:");
+    private Button logInButton = new Button("log in", VaadinIcon.KEY.create());
+    private Button logOutButton = new Button("log out", VaadinIcon.ARROW_LEFT.create());
     //UI commands
-    private final Consumer<String> SHOW_NOTIFICATION = (s) -> access(()->new Notification(s,3000, Notification.Position.TOP_CENTER).open());
     private final Consumer<Authentication> SWITCH_STATUS_OR_FIELDS = (a) -> access(() -> {
-        if (a.isAuthorized()) {
+        if (a.getUsername()!=null) {
             removeAll();
-            add(loggedInAs, currentUsername, logOut);
+            add(currentUsername, logOutButton);
             currentUsername.setText(a.getUsername());
         } else {
             removeAll();
-            add(username,password, logIn);
+            add(usernameField, passwordField, logInButton);
         }
     });
 
 
     public AuthWidget(AuthenticationHolder authenticationHolder) {
         this.authenticationHolder = authenticationHolder;
+        layout();
+        autoSetCssClassNames();
     }
 
     @Override
@@ -61,27 +57,40 @@ public class AuthWidget extends HorizontalLayout {
 
     @Override
     protected void onDetach(DetachEvent detachEvent) {
-        disposables.dispose();
-        registrations.forEach(Registration::remove);
+        disposable.dispose();
         super.onDetach(detachEvent);
     }
 
-    private void createLogic() {
-        registrations.add(logIn.addClickListener(e ->  {
-            authenticationHolder
-                    .authenticate(username.getValue(), password.getValue())
-                    .subscribe(SHOW_NOTIFICATION);
-            username.setValue("");
-            password.setValue("");
-            })
-        );
-        registrations.add(logOut.addClickListener(e ->  authenticationHolder.logOut()));
-        disposables.add(authenticationHolder
-            .getAuthentication()
-            .subscribe(SWITCH_STATUS_OR_FIELDS));
+    private void layout(){
+        add(currentUsername,usernameField,passwordField,logInButton,logOutButton);
     }
 
-    private void access(Command command){
-        getUI().ifPresent(ui -> ui.access(command));
+    private void createLogic() {
+        disposable.add(logInButton.addClickListener(e ->  {
+            authenticationHolder.authenticate(usernameField.getValue(), passwordField.getValue());
+            usernameField.setValue("");
+            passwordField.setValue("");
+            })
+        );
+
+        disposable.add(logOutButton.addClickListener(e ->  authenticationHolder.logOut()));
+
+        disposable.add(authenticationHolder
+            .getAuthentication()
+            .subscribe(authentication -> {
+                if (authentication.getUsername()==null){
+                    currentUsername.setText("");
+                    usernameField.setVisible(true);
+                    passwordField.setVisible(true);
+                    logInButton.setVisible(true);
+                    logOutButton.setVisible(false);
+                } else {
+                    currentUsername.setText(authentication.getUsername());
+                    usernameField.setVisible(false);
+                    passwordField.setVisible(false);
+                    logInButton.setVisible(false);
+                    logOutButton.setVisible(true);
+                }
+            }));
     }
 }
