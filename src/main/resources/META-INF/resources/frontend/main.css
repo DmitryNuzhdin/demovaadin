@@ -19,11 +19,18 @@
     width: 100%;
 }
 
+.MainUI-mainContentTabs{
+    width: 100%;
+}
+
+[class^='MainUI-'] [class$='Tabs']{
+    flex-grow: 1;
+}
+
 .MainUI-tabContent{
     height: 100%;
     width: 100%;
 }
-
 .AuthWidget-this{
     background-color: ivory;
     width: 100%;

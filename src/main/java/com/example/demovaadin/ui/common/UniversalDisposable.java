@@ -16,7 +16,8 @@ public class UniversalDisposable {
     }
 
     public void add(Registration registration){
-        registrations.add(registration);
+        
+        //registrations.add(registration);
     }
 
     public void dispose(){

@@ -37,12 +37,14 @@ public class CurrentTasksUI extends HorizontalLayout implements UIWidget {
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         createLogic();
+        System.out.println("CTUI attached!");
         super.onAttach(attachEvent);
     }
 
     @Override
     protected void onDetach(DetachEvent detachEvent) {
         disposable.dispose();
+        System.out.println("CTUI detached!");
         super.onDetach(detachEvent);
     }
 
@@ -51,6 +53,7 @@ public class CurrentTasksUI extends HorizontalLayout implements UIWidget {
     }
 
     private void createLogic() {
+        tasksList.removeAll();
         disposable.add(scriptRunService.getTasks()
             .subscribe(task -> access(()-> tasksList.add(new TaskElement(task,taskDetails)))));
     }
