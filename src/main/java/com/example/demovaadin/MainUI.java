@@ -6,6 +6,7 @@ import com.example.demovaadin.ui.common.UIWidget;
 import com.example.demovaadin.ui.currentTasks.CurrentTasksUI;
 import com.example.demovaadin.ui.runNewTask.RunNewTaskUI;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -16,6 +17,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.ui.Transport;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import io.reactivex.disposables.CompositeDisposable;
 
 
 @SpringComponent
@@ -48,21 +50,23 @@ public class MainUI extends HorizontalLayout implements UIWidget {
         autoSetCssClassNames();
         layout();
         createLogic();
-        super.onAttach(attachEvent);
+    }
+
+    @Override
+    protected void onDetach(DetachEvent detachEvent) {
+
     }
 
     private void createLogic() {
         mainContentTabs.addSelectedChangeListener(selectedChangeEvent -> {
-            tabContent.removeAll();
+            currentTasksUI.setVisible(false);
+            runNewTaskUI.setVisible(false);
             if(mainContentTabs.getSelectedTab()==currentTasksTab){
-                tabContent.add(currentTasksUI);
+                currentTasksUI.setVisible(true);
             } else if (mainContentTabs.getSelectedTab()== runNewTaskTab){
-                tabContent.add(runNewTaskUI);
+                runNewTaskUI.setVisible(true);
             }
         });
-        mainContentTabs.setSelectedTab(currentTasksTab);
-        tabContent.removeAll();
-        tabContent.add(currentTasksUI);
     }
 
     private void layout(){
@@ -71,6 +75,10 @@ public class MainUI extends HorizontalLayout implements UIWidget {
         mainContent.add(mainContentTabs,tabContent);
         mainContentTabs.add(currentTasksTab, runNewTaskTab,logsTab);
         mainContentTabs.setFlexGrowForEnclosedTabs(1);
+        tabContent.add(currentTasksUI,runNewTaskUI);
+        mainContentTabs.setSelectedTab(currentTasksTab);
+        currentTasksUI.setVisible(true);
+        runNewTaskUI.setVisible(false);
     }
 
 

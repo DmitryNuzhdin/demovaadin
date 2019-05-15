@@ -1,7 +1,6 @@
 package com.example.demovaadin.ui.currentTasks;
 
 import com.example.demovaadin.service.run.Task;
-import com.example.demovaadin.ui.auth.AuthenticationHolder;
 import com.example.demovaadin.ui.common.UIWidget;
 import com.example.demovaadin.ui.common.UniversalDisposable;
 import com.vaadin.flow.component.AttachEvent;
@@ -10,6 +9,7 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.data.value.ValueChangeMode;
 
 public class TaskDetails extends VerticalLayout implements UIWidget{
 
@@ -19,23 +19,24 @@ public class TaskDetails extends VerticalLayout implements UIWidget{
     private Label statusLabel = new Label();
     private HorizontalLayout usernameLayout = new HorizontalLayout();
     private HorizontalLayout statusLayout = new HorizontalLayout();
-    private TextArea resultTextAria = new TextArea();
+    private TextArea resultTextArea = new TextArea();
 
     private Task task;
     private UniversalDisposable disposable = new UniversalDisposable();
 
     public TaskDetails() {
         layout();
+        autoSetCssClassNames();
     }
 
     public void setTask(Task task) {
         this.task = task;
-        onAttach(null);
+        createLogic();
+
     }
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        disposable.dispose();
         createLogic();
         super.onAttach(attachEvent);
     }
@@ -47,21 +48,22 @@ public class TaskDetails extends VerticalLayout implements UIWidget{
     }
 
     private void layout() {
-        add(usernameLayout,statusLayout,resultTextAria);
+        add(usernameLayout,statusLayout, resultTextArea);
         usernameLayout.add(captionUsernameLabel,usernameLabel);
         statusLayout.add(captionStatusLabel,statusLabel);
-        resultTextAria.setEnabled(false);
+        resultTextArea.setReadOnly(true);
     }
 
     private void createLogic() {
+        disposable.dispose();
         usernameLabel.setText("");
         statusLabel.setText("");
-        resultTextAria.setValue("");
+        resultTextArea.setValue("");
         if (task!=null){
             usernameLabel.setText(task.getUser());
             disposable.add( task.getStatus().subscribe(taskStatus -> access(()-> statusLabel.setText(taskStatus.name()))));
             disposable.add( task.getResult().subscribe(o -> access(()->{
-                statusLabel.setText(statusLabel.getText()+"\n"+o.toString());
+                resultTextArea.setValue(resultTextArea.getValue()+o.toString()+"\n");
                 })
             ));
         }

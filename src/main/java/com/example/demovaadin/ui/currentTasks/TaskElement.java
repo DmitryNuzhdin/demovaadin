@@ -34,7 +34,6 @@ public class TaskElement extends VerticalLayout implements UIWidget {
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         disposable.add(task.getStatus().subscribe(taskStatus -> access(()-> {
-            setClassName("taskElement");
             addClassName(taskStatus.name().toLowerCase());
         }
         )));

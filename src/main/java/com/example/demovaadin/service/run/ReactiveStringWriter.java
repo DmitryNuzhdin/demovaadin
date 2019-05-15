@@ -24,13 +24,15 @@ public class ReactiveStringWriter extends Writer {
         } else if (len == 0) {
             return;
         }
+
         for(int i=off;i<(off+len);i++){
-            if (cbuf[i]=='\n'){
+            if (cbuf[i]=='\n' || cbuf[i]=='\r'){
                 buf.append(cbuf, off,i-off);
-                spawn(buf.toString());
-                buf.delete(0,buf.length());
+                if (cbuf[i]=='\n'){
+                    flush();
+                }
+                len=len-(i-off)-1;
                 off=i+1;
-                len=len-(i-off);
             }
         }
         if ((off < 0) || (off > cbuf.length) || (len < 0) ||
