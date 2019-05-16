@@ -19,11 +19,11 @@
     width: 100%;
 }
 
-.MainUI-mainContentTabs{
+[class$='Tabs']{
     width: 100%;
 }
 
-[class^='MainUI-'] [class$='Tabs']{
+[class$='Tab']{
     flex-grow: 1;
 }
 
@@ -68,5 +68,29 @@
 .TaskDetails-resultTextArea{
     width: 100%;
     height: 100%;
-    overflow: auto;
+}
+
+.RunNewTaskUI-this {
+    width: 100%;
+    height: 100%;
+}
+
+.RunNewTaskUI-sourcePickLayout {
+    width: 100%;
+    height: 100%;
+}
+
+.RunNewTaskUI-settingsLayout {
+    width: 100%;
+    height: 100%;
+}
+
+.RunNewTaskUI-repoSourceTreeGrid {
+    width: 100%;
+    height: 100%;
+}
+
+.RunNewTaskUI-runOnceSourceTextArea {
+    width: 100%;
+    height: 100%;
 }

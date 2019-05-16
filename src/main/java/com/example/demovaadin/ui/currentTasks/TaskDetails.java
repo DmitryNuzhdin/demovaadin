@@ -5,6 +5,7 @@ import com.example.demovaadin.ui.common.UIWidget;
 import com.example.demovaadin.ui.common.UniversalDisposable;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -19,7 +20,7 @@ public class TaskDetails extends VerticalLayout implements UIWidget{
     private Label statusLabel = new Label();
     private HorizontalLayout usernameLayout = new HorizontalLayout();
     private HorizontalLayout statusLayout = new HorizontalLayout();
-    private TextArea resultTextArea = new TextArea();
+    private com.vaadin.flow.component.html. resultTextArea = new Div();
 
     private Task task;
     private UniversalDisposable disposable = new UniversalDisposable();
