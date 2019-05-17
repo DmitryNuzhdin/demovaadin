@@ -11,10 +11,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 public class NexusConnector {
-    private final static String NEXUS_PATH = "http://admin:admin321@51.158.106.195:8081/";
+    private final static String NEXUS_PATH = "http://admin:admin321@127.0.0.1:8081/";
     private final static String REPO_PATH = "repository/scripts_repo/";
     
     
