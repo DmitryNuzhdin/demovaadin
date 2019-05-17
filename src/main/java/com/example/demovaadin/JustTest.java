@@ -7,12 +7,14 @@ import io.reactivex.Observable;
 import net.bytebuddy.dynamic.Nexus;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 public class JustTest {
     public static void main(String[] args){
         //System.out.println((new NexusConnector()).getFile("repository/scripts_repo/scripts/t1"));
         //System.out.println((new NexusConnector()).getFile("service/rest/v1/assets?repository=scripts_repo"));
-        System.out.println(new NexusConnector().getAssets());
+        //System.out.println(new NexusConnector().getAssets());
+        System.out.println(Arrays.asList("autoSetCssClassNames".split("(?<=[a-z,0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])")));
     }
 }

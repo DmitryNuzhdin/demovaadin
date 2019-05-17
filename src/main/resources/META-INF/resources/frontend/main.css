@@ -65,6 +65,14 @@
     height: 100%;
 }
 
+.TaskElement-this{
+    border-radius: 8px;
+}
+
+.TaskElement-this :hover{
+    border: solid 4px white;
+}
+
 .TaskDetails-resultTextArea{
     width: 100%;
     height: 100%;
