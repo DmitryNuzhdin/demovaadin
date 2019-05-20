@@ -7,14 +7,13 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.StyleSheet;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 
-@StyleSheet("taskelement.css")
-public class TaskElement extends VerticalLayout implements UIWidget {
+public class TaskElement extends Div implements UIWidget {
     private Task task;
-    private TaskDetails taskDetails;
+    private TaskDetails taskDetailsLayout;
 
     private Label username = new Label();
     private Label script = new Label();
@@ -25,19 +24,20 @@ public class TaskElement extends VerticalLayout implements UIWidget {
 
     public TaskElement(Task task, TaskDetails taskDetails) {
         this.task=task;
-        this.taskDetails=taskDetails;
+        this.taskDetailsLayout =taskDetails;
         username.setText(task.getUser());
         script.setText(task.getScript());
         add(username,script);
+        autoSetCssClassNames();
     }
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         disposable.add(task.getStatus().subscribe(taskStatus -> access(()-> {
-            addClassName(taskStatus.name().toLowerCase());
+            getElement().setAttribute("status", taskStatus.name().toLowerCase());
         }
         )));
-        disposable.add(getElement().addEventListener("click",domEvent -> taskDetails.setTask(task)));
+        disposable.add(getElement().addEventListener("click",domEvent -> taskDetailsLayout.setTask(task)));
         super.onAttach(attachEvent);
     }
 

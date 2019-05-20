@@ -5,20 +5,19 @@ import com.example.demovaadin.ui.common.UIWidget;
 import com.example.demovaadin.ui.common.UniversalDisposable;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Paragraph;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
-public class TaskDetails extends VerticalLayout implements UIWidget{
+public class TaskDetails extends Div implements UIWidget{
 
     private Label captionUsernameLabel = new Label("username");
     private Label captionStatusLabel = new Label("status");
     private Label usernameLabel = new Label();
     private Label statusLabel = new Label();
-    private HorizontalLayout usernameLayout = new HorizontalLayout();
-    private HorizontalLayout statusLayout = new HorizontalLayout();
-    private com.vaadin.flow.component.html.Paragraph resultTextArea = new Paragraph();
+    private Div usernameRow = new Div();
+    private Div statusRow = new Div();
+    private Paragraph resultScrollableFullsizeParagraph = new Paragraph();
 
     private Task task;
     private UniversalDisposable disposable = new UniversalDisposable();
@@ -47,21 +46,21 @@ public class TaskDetails extends VerticalLayout implements UIWidget{
     }
 
     private void layout() {
-        add(usernameLayout,statusLayout, resultTextArea);
-        usernameLayout.add(captionUsernameLabel,usernameLabel);
-        statusLayout.add(captionStatusLabel,statusLabel);
+        add(usernameRow, statusRow, resultScrollableFullsizeParagraph);
+        usernameRow.add(captionUsernameLabel,usernameLabel);
+        statusRow.add(captionStatusLabel,statusLabel);
     }
 
     private void createLogic() {
         disposable.dispose();
         usernameLabel.setText("");
         statusLabel.setText("");
-        resultTextArea.setText("");
+        resultScrollableFullsizeParagraph.setText("");
         if (task!=null){
             usernameLabel.setText(task.getUser());
             disposable.add( task.getStatus().subscribe(taskStatus -> access(()-> statusLabel.setText(taskStatus.name()))));
             disposable.add( task.getResult().subscribe(o -> access(()->{
-                resultTextArea.setText(resultTextArea.getText()+o.toString()+"\n");
+                resultScrollableFullsizeParagraph.setText(resultScrollableFullsizeParagraph.getText()+o.toString()+"\n");
                 })
             ));
         }

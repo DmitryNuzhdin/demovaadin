@@ -52,7 +52,7 @@ public class ScriptRunService {
     }
 
     public void runScript(String username, String script){
-        tasks.onNext(new Task(username,script));
+        tasks.onNext(new Task(username,script, false));
     }
 
     public Observable<Task> getTasks() {

@@ -7,8 +7,7 @@ import com.example.demovaadin.ui.common.UniversalDisposable;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -16,19 +15,18 @@ import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
-import java.util.ArrayList;
 import java.util.Set;
 
 
 @SpringComponent
 @UIScope
-public class RunNewTaskUI extends HorizontalLayout implements UIWidget {
+public class RunNewTaskUI extends Div implements UIWidget {
     private ScriptRunService scriptRunService;
     private AuthenticationHolder authenticationHolder;
     private UniversalDisposable disposable = new UniversalDisposable();
     
-    private VerticalLayout sourcePickLayout = new VerticalLayout();
-    private VerticalLayout settingsLayout = new VerticalLayout();
+    private Div sourcePickColumn = new Div();
+    private Div settingsColumn = new Div();
     private Tabs sourceTabs = new Tabs();
     private Tab repoSourceTab = new Tab("From repository");
     private Tab runOnceSourceTab = new Tab("Run once");
@@ -91,14 +89,13 @@ public class RunNewTaskUI extends HorizontalLayout implements UIWidget {
     }
     
     private void layout() {
-        add(sourcePickLayout,settingsLayout);
-        sourcePickLayout.add(sourceTabs, repoSourceTreeGrid, runOnceSourceTextArea,refreshRepoButton, submitButton);
+        add(sourcePickColumn, settingsColumn);
+        sourcePickColumn.add(sourceTabs, repoSourceTreeGrid, runOnceSourceTextArea,refreshRepoButton, submitButton);
         sourceTabs.add(repoSourceTab,runOnceSourceTab);
         sourceTabs.setSelectedTab(repoSourceTab);
         repoSourceTreeGrid.setVisible(true);
         runOnceSourceTextArea.setVisible(false);
-        
-        //repoSourceTreeGrid.setItems(PathNode.example(), PathNode::getChild);
+
         repoSourceTreeGrid.addHierarchyColumn(String::toString);
     }
 }

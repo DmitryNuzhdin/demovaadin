@@ -1,0 +1,92 @@
+.element {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.layout, .JavaClass{
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.row {
+    width: 100%;
+    max-width: 100%;
+    flex-direction: row;
+}
+
+.column{
+    height: 100%;
+    max-height: 100%;
+    flex-direction: column;
+}
+
+.horizontal, .MainUI, .CurrentTasksUI{
+    flex-direction: row;
+}
+
+.scrollable {
+    overflow: auto;
+}
+
+.fullsize{
+    width: 100%;
+    height: 100%;
+}
+
+.tab{
+    flex-grow: 1;
+}
+
+.MainUI .left {
+    max-width: 250px;
+    min-width: 250px;
+}
+
+.AuthWidgetUI {
+    height: auto;
+    background-color: ivory;
+}
+
+.AuthWidgetUI .label {
+    text-align: center;
+}
+
+.TaskDetails .result{
+    background-color: azure;
+    border: darkcyan dashed 2px;
+    border-radius: 10px;
+    white-space:pre-wrap;
+    padding: 0 10px;
+}
+
+.TaskElement {
+    height:auto;
+    border:black solid 3px;
+    margin-top:5px;
+    border-radius:8px;
+}
+.TaskElement[status="created"]{
+    background-color:paleturquoise;
+}
+.TaskElement[status="canceled"]{
+    background-color:lightgray;
+}
+.TaskElement[status="in_progress"]{
+    background-color:cornflowerblue;
+}
+.TaskElement[status="successful"]{
+    background-color:mediumaquamarine;
+}
+.TaskElement[status="failed"]{
+    background-color:indianred;
+}
+.TaskElement:hover{
+    border-color:white;
+}

@@ -1,7 +1,7 @@
 package com.example.demovaadin.ui;
 
 
-import com.example.demovaadin.ui.auth.AuthWidget;
+import com.example.demovaadin.ui.auth.AuthWidgetUI;
 import com.example.demovaadin.ui.common.UIWidget;
 import com.example.demovaadin.ui.currentTasks.CurrentTasksUI;
 import com.example.demovaadin.ui.runNewTask.RunNewTaskUI;
@@ -9,7 +9,6 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
@@ -23,12 +22,12 @@ import com.vaadin.flow.spring.annotation.UIScope;
 @Route("")
 @UIScope
 @Push(transport = Transport.LONG_POLLING)
-@StyleSheet("main.css")
-public class MainUI extends HorizontalLayout implements UIWidget {
+@StyleSheet("main_new.css")
+public class MainUI extends Div implements UIWidget {
     //injects
     private CurrentTasksUI currentTasksUI;
     private RunNewTaskUI runNewTaskUI;
-    private AuthWidget authWidgetUI;
+    private AuthWidgetUI authWidgetUI;
     //UI components
     private Div leftSideLayout = new Div();
     private Div mainContentLayout = new Div();
@@ -37,10 +36,10 @@ public class MainUI extends HorizontalLayout implements UIWidget {
     private Tab runNewTaskTab = new Tab("Run new task");
     private Tab logsTab = new Tab("Logs");
     
-    public MainUI(CurrentTasksUI currentTasksUI, RunNewTaskUI runNewTaskUI, AuthWidget authWidget) {
+    public MainUI(CurrentTasksUI currentTasksUI, RunNewTaskUI runNewTaskUI, AuthWidgetUI authWidgetUI) {
         this.currentTasksUI = currentTasksUI;
         this.runNewTaskUI = runNewTaskUI;
-        this.authWidgetUI = authWidget;
+        this.authWidgetUI = authWidgetUI;
     }
     
     @Override

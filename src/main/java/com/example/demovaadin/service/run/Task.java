@@ -5,15 +5,25 @@ import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.ReplaySubject;
 import io.reactivex.subjects.Subject;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class Task {
     private String user;
     private String script;
-    private ReplaySubject<Object> result = ReplaySubject.create();
+    private boolean commit;
+    private ReplaySubject<String> result = ReplaySubject.create();
     private BehaviorSubject<TaskStatus> status= BehaviorSubject.create();
+    private Map<String,String> attributes = new HashMap<>();
 
-    public Task(String user, String script) {
+    private static Pattern MY_PATTERN = Pattern.compile("(?s)(?<=/\\*).*?(?=\\*/)");
+
+    public Task(String user, String script, boolean commit) {
         this.user = user;
         this.script = script;
+        this.commit = commit;
         status.onNext(TaskStatus.CREATED);
     }
 
@@ -25,7 +35,7 @@ public class Task {
         return script;
     }
 
-    public Observable<Object> getResult() {
+    public Observable<String> getResult() {
         return result;
     }
 
@@ -33,11 +43,31 @@ public class Task {
         return status;
     }
 
-    Subject<Object> resultChanger(){
+    public boolean isCommit() {
+        return commit;
+    }
+
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
+
+    Subject<String> resultChanger(){
         return result;
     }
 
     Subject<TaskStatus> statusChanger() {
         return status;
     }
+
+    public void initAttributes(){
+        Matcher m = MY_PATTERN.matcher(script);
+        if (m.find()) {
+            String[] lines = m.group(0).replace("\r","").split("\n");
+            for (String line : lines) {
+                System.out.println(line.trim());
+            }
+        }
+
+    }
+
 }

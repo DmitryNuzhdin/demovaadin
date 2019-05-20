@@ -1,15 +1,12 @@
 package com.example.demovaadin.ui.currentTasks;
 
 import com.example.demovaadin.ui.common.UIWidget;
-import com.example.demovaadin.service.auth.Authentication;
-import com.example.demovaadin.service.auth.Role;
 import com.example.demovaadin.service.run.ScriptRunService;
 import com.example.demovaadin.ui.auth.AuthenticationHolder;
 import com.example.demovaadin.ui.common.UniversalDisposable;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
@@ -18,12 +15,12 @@ import com.vaadin.flow.spring.annotation.UIScope;
 
 @SpringComponent
 @UIScope
-public class CurrentTasksUI extends HorizontalLayout implements UIWidget {
+public class CurrentTasksUI extends Div implements UIWidget {
     private AuthenticationHolder authenticationHolder;
     private ScriptRunService scriptRunService;
 
-    private VerticalLayout tasksList = new VerticalLayout();
-    private TaskDetails taskDetails = new TaskDetails();
+    private Div tasksListLayout = new Div();
+    private TaskDetails taskDetailsLayout = new TaskDetails();
 
     private UniversalDisposable disposable = new UniversalDisposable();
 
@@ -47,12 +44,12 @@ public class CurrentTasksUI extends HorizontalLayout implements UIWidget {
     }
 
     private void layout() {
-        add(tasksList, taskDetails);
+        add(tasksListLayout, taskDetailsLayout);
     }
 
     private void createLogic() {
-        tasksList.removeAll();
+        tasksListLayout.removeAll();
         disposable.add(scriptRunService.getTasks()
-            .subscribe(task -> access(()-> tasksList.add(new TaskElement(task,taskDetails)))));
+            .subscribe(task -> access(()-> tasksListLayout.add(new TaskElement(task, taskDetailsLayout)))));
     }
 }

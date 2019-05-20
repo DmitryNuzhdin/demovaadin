@@ -6,10 +6,9 @@ import com.example.demovaadin.ui.common.UniversalDisposable;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.dependency.StyleSheet;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
@@ -18,14 +17,14 @@ import io.reactivex.functions.Consumer;
 
 @SpringComponent
 @UIScope
-public class AuthWidget extends VerticalLayout implements UIWidget {
+public class AuthWidgetUI extends Div implements UIWidget {
     //Injects
     private AuthenticationHolder authenticationHolder;
     //Disposable for unsubscribe
     private UniversalDisposable disposable = new UniversalDisposable();
     //UI components
 
-    private Label currentUsername = new Label("");
+    private Label currentUsernameLabel = new Label("");
     private TextField usernameField = new TextField("username:");
     private TextField passwordField = new TextField("password:");
     private Button logInButton = new Button("log in", VaadinIcon.KEY.create());
@@ -34,8 +33,8 @@ public class AuthWidget extends VerticalLayout implements UIWidget {
     private final Consumer<Authentication> SWITCH_STATUS_OR_FIELDS = (a) -> access(() -> {
         if (a.getUsername()!=null) {
             removeAll();
-            add(currentUsername, logOutButton);
-            currentUsername.setText(a.getUsername());
+            add(currentUsernameLabel, logOutButton);
+            currentUsernameLabel.setText(a.getUsername());
         } else {
             removeAll();
             add(usernameField, passwordField, logInButton);
@@ -43,7 +42,7 @@ public class AuthWidget extends VerticalLayout implements UIWidget {
     });
 
 
-    public AuthWidget(AuthenticationHolder authenticationHolder) {
+    public AuthWidgetUI(AuthenticationHolder authenticationHolder) {
         this.authenticationHolder = authenticationHolder;
         layout();
         autoSetCssClassNames();
@@ -62,7 +61,7 @@ public class AuthWidget extends VerticalLayout implements UIWidget {
     }
 
     private void layout(){
-        add(currentUsername,usernameField,passwordField,logInButton,logOutButton);
+        add(currentUsernameLabel,usernameField,passwordField,logInButton,logOutButton);
     }
 
     private void createLogic() {
@@ -79,13 +78,13 @@ public class AuthWidget extends VerticalLayout implements UIWidget {
             .getAuthentication()
             .subscribe(authentication -> {
                 if (authentication.getUsername()==null){
-                    currentUsername.setText("");
+                    currentUsernameLabel.setText("");
                     usernameField.setVisible(true);
                     passwordField.setVisible(true);
                     logInButton.setVisible(true);
                     logOutButton.setVisible(false);
                 } else {
-                    currentUsername.setText(authentication.getUsername());
+                    currentUsernameLabel.setText(authentication.getUsername());
                     usernameField.setVisible(false);
                     passwordField.setVisible(false);
                     logInButton.setVisible(false);
